@@ -7,7 +7,7 @@ from typing import Callable, Dict, Optional
 
 from protocols.fcs import compute_fcs
 from protocols.frame import Frame, encode_frame
-from server.config import BROADCAST_ID, FCSAlgorithm, ForwardingMode
+from server.config import BROADCAST_ID, FCSAlgorithm, ForwardingMode, FrameType
 from server.registry import ClientConnection, NodeRegistry
 
 
@@ -43,9 +43,9 @@ class ForwardingEngine:
         self._table: Dict[int, ForwardingEntry] = {}
         self._lock = asyncio.Lock()
 
-    async def forward(self, frame: Frame) -> list[int]:
+    async def forward(self, frame: Frame, direct: bool = False) -> list[int]:
         """Forward a frame and return the node IDs that received it."""
-        recipients = await self._select_recipients(frame)
+        recipients = await self._select_recipients(frame, direct=direct)
         wire_frame = self._encode(frame)
         delivered: list[int] = []
         for connection in recipients:
@@ -69,13 +69,18 @@ class ForwardingEngine:
             self._purge_expired()
             return sorted(self._table)
 
-    async def _select_recipients(self, frame: Frame) -> list[ClientConnection]:
+    async def _select_recipients(
+        self, frame: Frame, direct: bool = False
+    ) -> list[ClientConnection]:
         connections = [
             connection
             for node_id in await self.registry.node_ids()
             if (connection := await self.registry.get(node_id)) is not None
             and node_id != frame.src
         ]
+        if direct and frame.type == FrameType.DATA and frame.dst != BROADCAST_ID:
+            destination = await self.registry.get(frame.dst)
+            return [destination] if destination is not None else []
         if self.mode == ForwardingMode.HUB:
             return connections
 

@@ -42,17 +42,16 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Running the Server
+## Running the Hub and Dashboard
 
 ```bash
-python -m server.main --host 0.0.0.0 --port 5000
+uvicorn server.main:create_app --factory --host 0.0.0.0 --port 8080
 ```
 
-The optional FastAPI controls are exposed by the same `TCPServer` instance as
-`server.app` (for example, `uvicorn server.main:app --port 8080` in an
-application that creates a server). The dashboard is static and expects the
-API at `/api` and event stream at `/ws/events`; serve `dashboard/` with any
-static file server.
+This single process runs the Raspberry Pi hub TCP service on port `5000` and
+serves the dashboard/API on port `8080`. Open
+`http://<raspberry-pi-ip>:8080/` from the node PC or another device.
+The dashboard uses `/api` for status/events and `/ws/events` for live updates.
 
 SQLite events are written to `data/star_topology.sqlite3`. Export recorded
 events without inventing values:
@@ -72,6 +71,16 @@ The server must be started first. Run each additional client in a separate
 terminal with a unique ID from 1 through 4. Each client sends a FCS-protected
 HELLO frame and remains connected after receiving its CONFIG response. Stop a
 process with `Ctrl+C`.
+
+To request a transfer to another connected node:
+
+```bash
+python -m client.main --id 1 --host 192.168.1.50 --port 5000 --send-to 2 --message "hello from node 1"
+```
+
+The Raspberry Pi approves the request only when the destination is connected,
+then forwards the DATA frame. Requests for disconnected destinations are denied
+and appear in the dashboard activity log.
 
 ## Running Tests
 

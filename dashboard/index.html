@@ -1,3 +1,62 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Star Topology</title><link rel="stylesheet" href="style.css"></head>
-<body><main><h1>Star-Topology monitor</h1><p id="status">Connecting…</p><section><h2>Live events</h2><ul id="events"></ul></section></main><script src="dashboard.js"></script></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Star Network Hub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div>
+      <span class="hub-icon">✦</span>
+      <h1>Star Network Hub</h1>
+    </div>
+    <span id="hubStatus" class="status">CONNECTING</span>
+  </header>
+
+  <main>
+    <section class="topology-card">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">RPI CONTROL CENTER</p>
+          <h2>Connected nodes</h2>
+        </div>
+        <strong id="nodeCount">0 / 4</strong>
+      </div>
+
+      <div class="topology">
+        <svg class="links" viewBox="0 0 500 300" aria-hidden="true">
+          <line x1="250" y1="150" x2="90" y2="55"></line>
+          <line x1="250" y1="150" x2="410" y2="55"></line>
+          <line x1="250" y1="150" x2="90" y2="245"></line>
+          <line x1="250" y1="150" x2="410" y2="245"></line>
+        </svg>
+        <div class="hub-node">
+          <strong>RPi 5</strong>
+          <span>APPROVAL HUB</span>
+        </div>
+        <button class="node node-1" data-node="1">NODE 1<span>DISCONNECTED</span></button>
+        <button class="node node-2" data-node="2">NODE 2<span>DISCONNECTED</span></button>
+        <button class="node node-3" data-node="3">NODE 3<span>DISCONNECTED</span></button>
+        <button class="node node-4" data-node="4">NODE 4<span>DISCONNECTED</span></button>
+      </div>
+      <p class="hint">A node can send only to a connected destination. The RPi approves valid transfers before forwarding them.</p>
+    </section>
+
+    <section class="activity-card">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">LIVE CONTROL LOG</p>
+          <h2>Transfer approvals</h2>
+        </div>
+        <span class="live-dot">LIVE</span>
+      </div>
+      <div id="activityFeed" class="activity-feed">
+        <p class="empty">Waiting for a node to request a transfer...</p>
+      </div>
+    </section>
+  </main>
+  <script src="dashboard.js"></script>
+</body>
+</html>

@@ -2,13 +2,16 @@
 
 import asyncio
 import argparse
+import os
 
 from server.tcp_server import TCPServer
 
 
-def create_app() :
-    """Create the HTTP application; useful for uvicorn and embedding."""
-    return TCPServer().app
+def create_app():
+    """Create the dashboard/API app and its Raspberry Pi TCP hub."""
+    host = os.getenv("STAR_TOPOLOGY_TCP_HOST", "0.0.0.0")
+    port = int(os.getenv("STAR_TOPOLOGY_TCP_PORT", "5000"))
+    return TCPServer(host=host, port=port).app
 
 
 async def run(host: str, port: int) -> None:

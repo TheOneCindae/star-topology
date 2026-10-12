@@ -2,8 +2,11 @@
 
 import asyncio
 import json
+from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Optional
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from protocols.fcs import compute_fcs, validate_fcs
 from protocols.frame import Frame, create_config_frame, encode_frame
@@ -38,9 +41,20 @@ class TCPServer:
         self._tasks: set[asyncio.Task[None]] = set()
         self.database = Database()
         self.event_clients: set = set()
-        self.app = FastAPI(title="Star-Topology")
+
+        @asynccontextmanager
+        async def lifespan(_app: FastAPI):
+            await self.start()
+            try:
+                yield
+            finally:
+                await self.stop()
+
+        self.app = FastAPI(title="Star-Topology", lifespan=lifespan)
         self.app.include_router(create_router(self), prefix="/api")
         self.app.include_router(create_websocket_router(self))
+        dashboard_dir = Path(__file__).resolve().parent.parent / "dashboard"
+        self.app.mount("/", StaticFiles(directory=dashboard_dir, html=True), name="dashboard")
 
     @property
     def address(self) -> tuple[str, int]:
@@ -117,7 +131,20 @@ class TCPServer:
                         raise ValueError(
                             f"Frame source {frame.src} does not match node {node_id}"
                         )
-                    recipients = await self.forwarding.forward(frame)
+                    if frame.type == FrameType.DATA:
+                        destination = await self.registry.get(frame.dst)
+                        if frame.dst == frame.src or destination is None:
+                            await self._emit("transfer_denied", {
+                                "src": frame.src, "dst": frame.dst,
+                                "reason": "destination_not_connected",
+                            })
+                            continue
+                        await self._emit("transfer_approved", {
+                            "src": frame.src, "dst": frame.dst, "seq": frame.seq,
+                        })
+                    recipients = await self.forwarding.forward(
+                        frame, direct=frame.type == FrameType.DATA
+                    )
                     await self._emit("frame_forwarded", {
                         "src": frame.src, "dst": frame.dst, "seq": frame.seq,
                         "type": frame.type, "recipients": recipients,
