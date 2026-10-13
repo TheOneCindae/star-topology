@@ -79,13 +79,13 @@ checksum = (-sum(protected_bytes)) & 0xFF
 
 ### 2.2 CRC-8 (CRC8)
 
-**Polynomial:** 0x07 (x⁸ + x² + x + 1) — reflected representation
+**Polynomial:** 0x07 (x⁸ + x² + x + 1) — non-reflected representation
 **Initial value:** 0x00
-**Input reflection:** Yes (bit-reflected per byte)
+**Input reflection:** No
 **Output reflection:** Yes
 **Final XOR:** 0x00
 
-**Processing convention:** Each input byte is processed LSB-first (reflected). The CRC register is shifted right. The polynomial 0x07 is used in its reflected form 0xE0 for the shift register, but the standard table-driven implementation with polynomial 0x07 and reflected input/output is used.
+**Processing convention:** Each input byte is processed MSB-first. The CRC register is shifted left and polynomial 0x07 is applied when its high bit is set.
 
 **Wire encoding:** Single byte placed in the first FCS byte. The second FCS byte is set to 0x00.
 
@@ -98,7 +98,7 @@ checksum = (-sum(protected_bytes)) & 0xFF
 ### 2.3 CRC-16 (CRC16)
 
 **Polynomial:** 0x1021 (x¹⁶ + x¹² + x⁵ + 1) — CCITT-FALSE
-**Initial value:** 0x0000
+**Initial value:** 0xFFFF
 **Input reflection:** No (normal bit order)
 **Output reflection:** No
 **Final XOR:** 0x0000

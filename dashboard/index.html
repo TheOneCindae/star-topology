@@ -42,6 +42,13 @@
         <button class="node node-4" data-node="4">NODE 4<span>DISCONNECTED</span></button>
       </div>
       <p class="hint">A node can send only to a connected destination. The RPi approves valid transfers before forwarding them.</p>
+      <div class="stats" aria-label="Protocol statistics">
+        <span>ACK <strong id="ackCount">0</strong></span>
+        <span>LOSS <strong id="lossCount">0</strong></span>
+        <span>CORRUPT <strong id="corruptCount">0</strong></span>
+        <span>COLLISIONS <strong id="collisionCount">0</strong></span>
+        <span>RETRIES <strong id="retryCount">0</strong></span>
+      </div>
     </section>
 
     <section class="activity-card">
@@ -55,6 +62,29 @@
       <div id="activityFeed" class="activity-feed">
         <p class="empty">Waiting for a node to request a transfer...</p>
       </div>
+    </section>
+
+    <section class="activity-card admin-card">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">ADMINISTRATION</p>
+          <h2>Node access</h2>
+        </div>
+      </div>
+      <label>Admin token <input id="adminToken" type="password" autocomplete="off"></label>
+      <div class="admin-row">
+        <input id="adminNodeId" type="number" min="1" max="4" placeholder="Node ID">
+        <input id="adminNodeName" type="text" placeholder="Node name">
+        <button id="provisionNode">Provision</button>
+        <button id="revokeNode">Revoke</button>
+      </div>
+      <div class="admin-row">
+        <input id="permissionSource" type="number" min="1" max="4" placeholder="Source">
+        <input id="permissionDestination" type="number" min="1" max="4" placeholder="Destination">
+        <button id="allowPermission">Allow DATA</button>
+        <button id="denyPermission">Deny DATA</button>
+      </div>
+      <p id="adminResult" class="hint">Administrative changes require the configured token.</p>
     </section>
   </main>
   <script src="dashboard.js"></script>

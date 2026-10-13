@@ -35,7 +35,8 @@ class SelectiveRepeat:
                 if retry < self.max_retries:
                     result.retransmissions += len(pending)
             else:
-                result.success = result.timed_out = True
+                result.success = False
+                result.timed_out = True
                 return result
         return result
 

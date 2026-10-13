@@ -1,0 +1,17 @@
+[Unit]
+Description=Star-Topology Raspberry Pi approval hub
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/star-topology
+Environment=STAR_TOPOLOGY_TCP_HOST=0.0.0.0
+Environment=STAR_TOPOLOGY_TCP_PORT=5000
+Environment=STAR_TOPOLOGY_DB_PATH=/var/lib/star-topology/star_topology.sqlite3
+ExecStart=/opt/star-topology/.venv/bin/uvicorn server.main:create_app --factory --host 0.0.0.0 --port 8080
+Restart=on-failure
+User=star-topology
+
+[Install]
+WantedBy=multi-user.target

@@ -177,14 +177,14 @@ def decode_frame(data: bytes, validate_fcs_fn=None) -> Frame:
     )
 
 
-def create_hello_frame(node_id: int) -> Frame:
+def create_hello_frame(node_id: int, credential: str | None = None) -> Frame:
     """Create a HELLO registration frame."""
     return Frame(
         dst=HUB_ID,
         src=node_id,
         type=FrameType.HELLO,
         seq=0,
-        payload=b""
+        payload=(credential or "").encode("utf-8")
     )
 
 

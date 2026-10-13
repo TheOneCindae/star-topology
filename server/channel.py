@@ -5,13 +5,14 @@ import time
 from typing import Callable, Dict, Optional
 
 
-@dataclass(frozen=True)
+@dataclass
 class Transmission:
     """A transmission currently occupying the shared channel."""
 
     node_id: int
     started_at: float
     ends_at: float
+    collided: bool = False
 
 
 class Channel:
@@ -45,6 +46,8 @@ class Channel:
         self._expire(start)
         if self._active:
             self.collision_count += 1
+            for active in self._active.values():
+                active.collided = True
         transmission = Transmission(node_id, start, start + self.frame_duration)
         self._active[node_id] = transmission
         return transmission
@@ -55,7 +58,7 @@ class Channel:
         transmission = self._active.pop(node_id, None)
         if transmission is None:
             return False
-        return current >= transmission.ends_at and not self._active
+        return current >= transmission.ends_at and not transmission.collided
 
     def _expire(self, now: Optional[float] = None) -> None:
         current = self._clock() if now is None else now

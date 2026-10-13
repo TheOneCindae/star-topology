@@ -59,7 +59,12 @@ class TestChecksum8:
 
 
 class TestCRC8:
-    """Tests for CRC-8 algorithm (polynomial 0x07, reflected)."""
+    """Tests for CRC-8 algorithm (polynomial 0x07, non-reflected)."""
+
+    def test_table_has_one_entry_per_byte(self):
+        from protocols.fcs import _CRC8_TABLE
+
+        assert len(_CRC8_TABLE) == 256
 
     def test_empty_data(self):
         fcs = crc8_compute(b"")
@@ -67,7 +72,7 @@ class TestCRC8:
 
     def test_known_vector_123456789(self):
         fcs = crc8_compute(b"123456789")
-        assert fcs == bytes([0x61, 0x00]), f"Got {fcs.hex()}, expected 6100"
+        assert fcs == bytes([0xF4, 0x00]), f"Got {fcs.hex()}, expected F400"
 
     def test_known_vector_AB(self):
         fcs = crc8_compute(b"AB")
@@ -100,25 +105,25 @@ class TestCRC16:
 
     def test_empty_data(self):
         fcs = crc16_compute(b"")
-        assert fcs == bytes([0x00, 0x00])
+        assert fcs == bytes([0xFF, 0xFF])
 
     def test_known_vector_123456789(self):
         fcs = crc16_compute(b"123456789")
-        assert fcs == bytes([0x31, 0xC3]), f"Got {fcs.hex()}, expected 31C3"
+        assert fcs == bytes([0x29, 0xB1]), f"Got {fcs.hex()}, expected 29B1"
 
     def test_known_vector_AB(self):
         fcs = crc16_compute(b"AB")
-        assert fcs == bytes([0x56, 0x7B]), f"Got {fcs.hex()}, expected 567B"
+        assert fcs == bytes([0x4B, 0x74]), f"Got {fcs.hex()}, expected 4B74"
 
     def test_known_vector_BA(self):
         fcs = crc16_compute(b"BA")
-        assert fcs == bytes([0x33, 0x4B]), f"Got {fcs.hex()}, expected 334B"
+        assert fcs == bytes([0x2E, 0x44]), f"Got {fcs.hex()}, expected 2E44"
 
     def test_big_endian_output(self):
         # Verify output is big-endian
         fcs = crc16_compute(b"123456789")
-        assert fcs[0] == 0x31  # High byte
-        assert fcs[1] == 0xC3  # Low byte
+        assert fcs[0] == 0x29  # High byte
+        assert fcs[1] == 0xB1  # Low byte
 
     def test_validate_valid(self):
         data = b"test data"

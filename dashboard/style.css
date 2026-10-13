@@ -39,6 +39,26 @@ main { display: grid; gap: 16px; margin: 24px auto; max-width: 900px; padding: 0
 .hint, .empty { color: var(--muted); font-size: 12px; text-align: center; }
 .hint { border-top: 1px solid var(--line); padding-top: 12px; }
 .activity-feed { display: grid; gap: 8px; margin-top: 16px; max-height: 260px; overflow: auto; }
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  color: #91a4b8;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+}
+
+.stats span {
+  padding: 0.45rem 0.65rem;
+  border: 1px solid #26384c;
+  border-radius: 0.4rem;
+}
+
+.stats strong {
+  color: #f2f7fb;
+}
 .event { background: var(--panel-dark); border-left: 3px solid var(--cyan); border-radius: 3px; font: 12px ui-monospace, monospace; padding: 10px; }
 .event.denied { border-left-color: var(--red); }.event.approved { border-left-color: var(--green); }
 @media (max-width: 600px) { header { padding: 14px 16px; }.topology { height: 290px; }.node { width: 112px; }.hub-node { height: 90px; left: calc(50% - 45px); top: calc(50% - 45px); width: 90px; }.hub-node strong { font-size: 15px; } }

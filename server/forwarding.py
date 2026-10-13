@@ -5,7 +5,6 @@ import time
 from dataclasses import dataclass
 from typing import Callable, Dict, Optional
 
-from protocols.fcs import compute_fcs
 from protocols.frame import Frame, encode_frame
 from server.config import BROADCAST_ID, FCSAlgorithm, ForwardingMode, FrameType
 from server.registry import ClientConnection, NodeRegistry
@@ -43,10 +42,12 @@ class ForwardingEngine:
         self._table: Dict[int, ForwardingEntry] = {}
         self._lock = asyncio.Lock()
 
-    async def forward(self, frame: Frame, direct: bool = False) -> list[int]:
+    async def forward(
+        self, frame: Frame, direct: bool = False, encoded: bytes | None = None
+    ) -> list[int]:
         """Forward a frame and return the node IDs that received it."""
         recipients = await self._select_recipients(frame, direct=direct)
-        wire_frame = self._encode(frame)
+        wire_frame = self._encode(frame) if encoded is None else encoded
         delivered: list[int] = []
         for connection in recipients:
             try:
@@ -112,7 +113,4 @@ class ForwardingEngine:
             del self._table[node_id]
 
     def _encode(self, frame: Frame) -> bytes:
-        protected = bytes([frame.dst, frame.src, frame.type, frame.seq, frame.len])
-        protected += frame.payload
-        fcs = compute_fcs(self.fcs_algorithm, protected)
-        return encode_frame(frame, fcs)
+        return encode_frame(frame, frame.fcs)
